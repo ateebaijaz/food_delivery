@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.env
+.env
+
+# Virtual environment
+venv/
+
+# VSCode
+.vscode/
+
+# Pytest cache
+.pytest_cache/
+
+# Migrations
+alembic/versions/
+
+# SQLite (if used during testing)
+*.db

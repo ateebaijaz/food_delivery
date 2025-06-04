@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from app.database import SessionLocal
-from sqlalchemy import text  # <-- import text here
+from sqlalchemy import text
+from app.routes import auth
+from app.routes import user  # <-- import text here
 
 app = FastAPI()
 
@@ -12,3 +14,6 @@ def root():
         return {"message": "Database connected!"}
     finally:
         db.close()
+
+app.include_router(auth.router)
+app.include_router(user.router)

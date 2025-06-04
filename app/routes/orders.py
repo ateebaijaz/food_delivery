@@ -89,21 +89,20 @@ def mark_order_delivered(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # Step 1: Get delivery agent record linked to this user
+    # zeptoooo agent record linked to this user
     delivery_agent = get_delivery_agent_by_user(db, current_user.id)
     if not delivery_agent:
         raise HTTPException(status_code=403, detail="You are not a registered delivery agent")
 
-    # Step 2: Fetch the order
+    # fettetv the order
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    # Step 3: Ensure this delivery agent is assigned to the order
     if order.delivery_agent_id != delivery_agent.id:
         raise HTTPException(status_code=403, detail="You are not assigned to this order")
 
-    # Step 4: Mark it as delivered
+    # S delivered
     order.status = "DELIVERED"
     delivery_agent.is_available = True
     db.commit()

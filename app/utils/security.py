@@ -3,7 +3,7 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta
 
 # JWT Config
-SECRET_KEY = "super-secret-key"  # Use env var in production
+SECRET_KEY = "super-secret-key"  
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

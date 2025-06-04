@@ -13,9 +13,9 @@ class RatingResponse(BaseModel):
     restaurant_rating: int
     delivery_agent_rating: Optional[int] = None
     rated_by_user_id: int
-    rated_by_user_name: str  # fixed typo here
+    rated_by_user_name: str  #
     restaurant_name: str
-    order_items: List[str]   # assuming order.items is a list of strings (item names)
+    order_items: List[str]   # ateeb-learning --in fastapi we prepare schema similar to django serializers
 
     class Config:
         orm_mode = True

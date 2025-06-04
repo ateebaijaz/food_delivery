@@ -71,7 +71,6 @@ def list_menu_items(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    # Verify restaurant ownership for security
     restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id, Restaurant.owner_id == current_user.id).first()
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant not found or not owned by user")

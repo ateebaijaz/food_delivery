@@ -5,7 +5,7 @@ from app.database import Base
 import enum
 from sqlalchemy import Enum as SqlEnum
 
-
+#ateeb learning- in django we have  one field for orm as well as relationship while in sqlalchemy we have two fields one for orm and one for relationship
 class OrderStatus(str, enum.Enum):
     PENDING = "pending"
     ACCEPTED = "accepted"

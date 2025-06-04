@@ -6,11 +6,16 @@ class RatingInput(BaseModel):
     delivery_agent_rating: Annotated[int, Field(ge=1, le=5)] | None = None
 
 
-from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class RatingResponse(BaseModel):
     order_id: int
     restaurant_rating: int
     delivery_agent_rating: Optional[int] = None
     rated_by_user_id: int
+    rated_by_user_name: str  # fixed typo here
+    restaurant_name: str
+    order_items: List[str]   # assuming order.items is a list of strings (item names)
+
+    class Config:
+        orm_mode = True

@@ -158,9 +158,15 @@ def get_rating(
     if not order or order.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="You are not authorized to view this rating")
 
+    user = db.query(User).filter(User.id == order.user_id).first()
+    restaurant = db.query(Restaurant).filter(Restaurant.id == order.restaurant_id).first()
+
     return RatingResponse(
         order_id=rating.order_id,
         restaurant_rating=rating.restaurant_rating,
         delivery_agent_rating=rating.delivery_agent_rating,
-        rated_by_user_id=order.user_id
+        rated_by_user_id=user.id,
+        rated_by_user_name=user.name,
+        restaurant_name=restaurant.name,
+        order_items=[item.menu_item.name for item in order.items],
     )

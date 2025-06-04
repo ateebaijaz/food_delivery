@@ -12,6 +12,8 @@ from app.schemas.order import OrderUpdateStatus
 
 from app.models.order import Order, OrderStatus
 
+from app.schemas.ratings import RatingResponse
+
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 
@@ -64,7 +66,7 @@ def update_order_status(order_id: int, update: OrderUpdateStatus, db: Session = 
         raise HTTPException(status_code=404, detail="Order not found")
     
     if order.restaurant.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to update this order")
+        raise HTTPException(status_code=403, detail="Youre are not associated with this restaurnet")
 
     if update.status not in ["accepted", "rejected"]:
         raise HTTPException(status_code=400, detail="Invalid status. Must be 'accepted' or 'rejected'.")
@@ -78,25 +80,87 @@ def update_order_status(order_id: int, update: OrderUpdateStatus, db: Session = 
 
 
 
+def get_delivery_agent_by_user(db: Session, user_id: int) -> DeliveryAgent:
+    return db.query(DeliveryAgent).filter(DeliveryAgent.user_id == user_id).first()
+
 @router.patch("/{order_id}/deliver")
-def mark_order_delivered(order_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def mark_order_delivered(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # Step 1: Get delivery agent record linked to this user
+    delivery_agent = get_delivery_agent_by_user(db, current_user.id)
+    if not delivery_agent:
+        raise HTTPException(status_code=403, detail="You are not a registered delivery agent")
+
+    # Step 2: Fetch the order
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
 
-    # Check agent is assigned
-    if not order.delivery_agent_id:
-        raise HTTPException(status_code=400, detail="No delivery agent assigned to this order")
-    
-    agent = db.query(DeliveryAgent).filter(DeliveryAgent.id == order.delivery_agent_id).first()
-    
-    if str(agent.id) != str(current_user.id):  # Assuming delivery agents log in via same system
+    # Step 3: Ensure this delivery agent is assigned to the order
+    if order.delivery_agent_id != delivery_agent.id:
         raise HTTPException(status_code=403, detail="You are not assigned to this order")
 
-    if order.status != OrderStatus.ACCEPTED:
-        raise HTTPException(status_code=400, detail="Order not in accepted state")
-
-    order.status = OrderStatus.DELIVERED
-    agent.is_available = True
+    # Step 4: Mark it as delivered
+    order.status = "DELIVERED"
+    delivery_agent.is_available = True
     db.commit()
+
     return {"message": "Order marked as delivered"}
+
+
+
+from app.models.rating import Rating
+from app.schemas.ratings import RatingInput
+@router.post("/{order_id}/rate")
+def rate_order(
+    order_id: int,
+    rating_data: RatingInput,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    
+    if not order or order.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You cannot rate this order as you are not the user who placed it")
+
+    if not order.status == "delivered":
+        raise HTTPException(status_code=400, detail="Order not delivered yet")
+
+    existing = db.query(Rating).filter(Rating.order_id == order_id).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Already rated")
+
+    rating = Rating(
+        order_id=order.id,
+        restaurant_rating=rating_data.restaurant_rating,
+        delivery_agent_rating=rating_data.delivery_agent_rating,
+    )
+    db.add(rating)
+    db.commit()
+    return {"message": "Thanks for your feedback!"}
+
+
+@router.get("/{order_id}/rating", response_model=RatingResponse)
+def get_rating(
+    order_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    rating = db.query(Rating).filter(Rating.order_id == order_id).first()
+
+    if not rating:
+        raise HTTPException(status_code=404, detail="No rating found for this order")
+
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order or order.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You are not authorized to view this rating")
+
+    return RatingResponse(
+        order_id=rating.order_id,
+        restaurant_rating=rating.restaurant_rating,
+        delivery_agent_rating=rating.delivery_agent_rating,
+        rated_by_user_id=order.user_id
+    )

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from app.database import SessionLocal
 from sqlalchemy import text
-from app.routes import auth, user, restaurant, orders# <-- import text here
+from app.routes import auth, user, restaurant, orders, delivery
 app = FastAPI()
 
 @app.get("/")
@@ -17,3 +17,4 @@ app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(restaurant.router)
 app.include_router(orders.router)
+app.include_router(delivery.router)

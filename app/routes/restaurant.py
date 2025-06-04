@@ -77,3 +77,9 @@ def list_menu_items(
         raise HTTPException(status_code=404, detail="Restaurant not found or not owned by user")
 
     return db.query(MenuItem).filter(MenuItem.restaurant_id == restaurant_id).all()
+
+
+@router.get("/online")
+def get_online_restaurants(db: Session = Depends(get_db)):
+    restaurants = db.query(Restaurant).filter(Restaurant.is_online == True).all()
+    return restaurants

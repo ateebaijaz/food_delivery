@@ -10,6 +10,7 @@ from app.schemas.restaurant import (
     RestaurantCreate, Restaurant as RestaurantSchema,
     MenuItemCreate, MenuItem as MenuItemSchema,
 )
+from app.schemas.restaurant import RestaurantUpdate
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 
@@ -29,7 +30,13 @@ def create_restaurant(
     db.add(restaurant)
     db.commit()
     db.refresh(restaurant)
-    return restaurant
+    return {"Message": "Restaurant created successfully", "restaurant": {
+        "id": restaurant.id,
+        "name": restaurant.name,
+        "address": restaurant.address,
+        "is_online": restaurant.is_online,
+        "owner_id": restaurant.owner_id, 
+    }}
 
 # List all restaurants owned by current user
 @router.get("/", response_model=List[RestaurantSchema])
@@ -82,3 +89,36 @@ def list_menu_items(
 def get_online_restaurants(db: Session = Depends(get_db)):
     restaurants = db.query(Restaurant).filter(Restaurant.is_online == True).all()
     return restaurants
+
+
+
+
+@router.patch("/{restaurant_id}")
+def update_restaurant(
+    restaurant_id: int,
+    updates: RestaurantUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id).first()
+
+    if not restaurant:
+        raise HTTPException(status_code=404, detail="Restaurant not found")
+
+    if restaurant.owner_id != current_user.id:
+        raise HTTPException(status_code=403, detail="You are not the owner of this restaurant")
+
+    if updates.name is not None:
+        restaurant.name = updates.name
+    if updates.address is not None:
+        restaurant.address = updates.address
+    if updates.is_online is not None:
+        restaurant.is_online = updates.is_online
+
+    db.commit()
+    db.refresh(restaurant)
+    return {"message": "Restaurant updated", "restaurant": {
+        "id": restaurant.id,
+        "name": restaurant.name,
+        "is_online": restaurant.is_online
+    }}

@@ -30,3 +30,8 @@ class Restaurant(RestaurantBase):
 
     class Config:
         orm_mode = True
+
+class RestaurantUpdate(BaseModel):
+    name: Optional[str] = None
+    address: Optional[str] = None
+    is_online: Optional[bool] = None

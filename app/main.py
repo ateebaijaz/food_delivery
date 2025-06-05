@@ -1,14 +1,14 @@
 from fastapi import FastAPI
 from app.database import SessionLocal
 from sqlalchemy import text
-from app.routes import auth, user, restaurant, orders, delivery
+from app.routes import auth, user, restaurant, orders, delivery, menu
 from fastapi.responses import HTMLResponse
 from fastapi.openapi.utils import get_openapi
 from fastapi.security import HTTPBearer
 
 app = FastAPI()
 
-# Custom Swagger Bearer Token Support
+# ateebb Swagger Bearer Token Support
 security = HTTPBearer()
 
 def custom_openapi():
@@ -98,3 +98,4 @@ app.include_router(user.router)
 app.include_router(restaurant.router)
 app.include_router(orders.router)
 app.include_router(delivery.router)
+app.include_router(menu.router)

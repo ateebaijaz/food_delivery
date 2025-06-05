@@ -31,6 +31,10 @@ class Restaurant(RestaurantBase):
     class Config:
         orm_mode = True
 
+class RestaurantCreateResponse(BaseModel):
+    Message: str
+    restaurant: Restaurant
+    
 class RestaurantUpdate(BaseModel):
     name: Optional[str] = None
     address: Optional[str] = None

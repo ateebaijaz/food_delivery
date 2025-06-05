@@ -24,5 +24,6 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 def decode_token(token: str):
     try:
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except JWTError:
+    except Exception as e:
+        print(f"Token decoding error: {e}")
         return None

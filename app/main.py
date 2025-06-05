@@ -17,11 +17,11 @@ def custom_openapi():
     openapi_schema = get_openapi(
         title="Food Delivery API",
         version="1.0.0",
-        description="API documentation for the food delivery backend",
+        description="API for a Food Delivery app",
         routes=app.routes,
     )
     openapi_schema["components"]["securitySchemes"] = {
-        "BearerAuth": {
+        "HTTPBearer": {
             "type": "http",
             "scheme": "bearer",
             "bearerFormat": "JWT"
@@ -29,7 +29,7 @@ def custom_openapi():
     }
     for path in openapi_schema["paths"].values():
         for method in path.values():
-            method.setdefault("security", [{"BearerAuth": []}])
+            method.setdefault("security", [{"HTTPBearer": []}])
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 

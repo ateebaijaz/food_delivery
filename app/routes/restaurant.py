@@ -10,12 +10,12 @@ from app.schemas.restaurant import (
     RestaurantCreate, Restaurant as RestaurantSchema,
     MenuItemCreate, MenuItem as MenuItemSchema,
 )
-from app.schemas.restaurant import RestaurantUpdate
+from app.schemas.restaurant import RestaurantUpdate, RestaurantCreateResponse
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 
 # Create a new restaurant owned by current user
-@router.post("/", response_model=RestaurantSchema)
+@router.post("/", response_model=RestaurantCreateResponse)
 def create_restaurant(
     restaurant_data: RestaurantCreate,
     db: Session = Depends(get_db),
@@ -30,13 +30,10 @@ def create_restaurant(
     db.add(restaurant)
     db.commit()
     db.refresh(restaurant)
-    return {"Message": "Restaurant created successfully", "restaurant": {
-        "id": restaurant.id,
-        "name": restaurant.name,
-        "address": restaurant.address,
-        "is_online": restaurant.is_online,
-        "owner_id": restaurant.owner_id, 
-    }}
+    return {
+        "Message": "Restaurant created successfully",
+        "restaurant": restaurant  # Th SQLAlchemy object
+    }
 
 # List all restaurants owned by current user
 @router.get("/", response_model=List[RestaurantSchema])

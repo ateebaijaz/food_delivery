@@ -77,7 +77,7 @@ def list_menu_items(
 ):
     restaurant = db.query(Restaurant).filter(Restaurant.id == restaurant_id, Restaurant.owner_id == current_user.id).first()
     if not restaurant:
-        raise HTTPException(status_code=404, detail="Restaurant not found or not owned by user")
+        raise HTTPException(status_code=404, detail="Restaurant not found  here or not owned by user")
 
     return db.query(MenuItem).filter(MenuItem.restaurant_id == restaurant_id).all()
 

@@ -1,0 +1,80 @@
+developer_notes:
+  app_name: "Food Delivery API"
+  version: "1.0"
+  sections:
+
+    - title: "1. Authentication & Token Handling"
+      details:
+        - "Register API:"
+        - "  - Requires: name, email, password"
+        - "  - Response: JWT access_token"
+        - "Login API:"
+        - "  - Requires: email, password"
+        - "  - Response: JWT access_token"
+        - "Usage:"
+        - "  - For all authenticated requests, add header:"
+        - "    Authorization: Bearer <access_token>"
+
+    - title: "2. User Roles"
+      details:
+        - "Roles supported (via API logic):"
+        - "  - Restaurant owners: can register/manage restaurants & menus"
+        - "  - Delivery agents: must register, can mark orders delivered"
+        - "  - General users: can place orders & rate them"
+        - "Register Delivery Agent:"
+        - "  - POST /delivery/register-agent"
+        - "  - Creates linked DeliveryAgent record"
+
+    - title: "3. Restaurant & Menu Management"
+      details:
+        - "Restaurant Owner Capabilities:"
+        - "  - Create restaurant"
+        - "  - Retrieve own restaurants"
+        - "  - Update restaurant details (name, address, online/offline)"
+        - "Menu Management:"
+        - "  - Add menu items"
+        - "  - Update menu items (name, price, availability)"
+        - "  - List menu items"
+
+    - title: "4. Orders Workflow"
+      details:
+        - "Users can place orders from online restaurants."
+        - "Delivery agent is auto-assigned if available."
+        - "If no agent available: error returned → No delivery agent available."
+        - "Order Status Updates:"
+        - "  - Owner can update status: accepted, rejected, preparing, ready, delivered"
+        - "  - Delivery agent can mark as delivered"
+
+    - title: "5. Ratings System"
+      details:
+        - "After delivery, users can submit rating:"
+        - "  - Fields: restaurant_rating (required), delivery_agent_rating (optional)"
+        - "  - Only 1 rating per order allowed."
+        - "  - Only order owner can rate."
+        - "Retrieve ratings:"
+        - "  - GET /ratings/{order_id}"
+        - "  - Returns: restaurant rating, delivery agent rating, user info"
+
+    - title: "6. Bulk Restaurant Listing"
+      details:
+        - "GET /restaurants/online → returns all online restaurants."
+
+    - title: "7. Database Notes"
+      details:
+        - "PostgreSQL used."
+        - "Tables auto-created on startup using Base.metadata.create_all(bind=engine)."
+        - "No Alembic migrations → manual DB updates required if model changes."
+
+    - title: "8. Deployment Notes"
+      details:
+        - "App deployed on Railway."
+        - "Postgres hosted separately on Railway."
+        - "Ensure Postgres is up first."
+        - "App performs SELECT 1 to check DB connection."
+
+    - title: "9. Known Limitations"
+      details:
+        - "No enforced user roles at DB level → handled in API logic."
+        - "No automatic retries if delivery agent unavailable."
+        - "No automatic restaurant status updates."
+        - "Ratings are immutable after submission (no update endpoint)."

@@ -1,6 +1,6 @@
 from app.database import engine, Base
 import app.models  # Make sure all models are imported
-from app.models import user, restaurant 
+from app.models import user, restaurant, delivery, order, rating
 
 def create_all_tables():
     Base.metadata.create_all(bind=engine)
